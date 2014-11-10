@@ -5,6 +5,10 @@ namespace Game2048.Game.Solver
 {
     public class HeuristicWeightProvider : IHeuristicWeightProvider
     {
+        /// <summary>
+        /// Gets the weight.
+        /// </summary>
+        /// <returns></returns>
         public HeuristicWeight GetWeight()
         {
             return new HeuristicWeight()

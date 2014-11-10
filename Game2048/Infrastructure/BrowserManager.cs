@@ -14,14 +14,49 @@ namespace Game2048.Infrastructure
 {
     public class BrowserManager : IBrowserManager
     {
+        #region Fields
+
         private WebBrowser browser;
 
+        #endregion
+
+        #region Properties]
+
+        /// <summary>
+        /// Gets or sets the navigated.
+        /// </summary>
+        /// <value>
+        /// The navigated.
+        /// </value>
+        public Action Navigated
+        {
+            get;
+            set;
+        }
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BrowserManager"/> class.
+        /// </summary>
+        /// <param name="browser">The browser.</param>
         public BrowserManager(WebBrowser browser)
         {
             this.browser = browser;
             browser.Navigated += browser_Navigated;
         }
 
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Handles the Navigated event of the browser control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.Windows.Navigation.NavigationEventArgs"/> instance containing the event data.</param>
         async void browser_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
             if (Navigated != null)
@@ -31,6 +66,14 @@ namespace Game2048.Infrastructure
             }
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Deactivates the errors.
+        /// </summary>
+        /// <exception cref="System.ArgumentNullException">browser</exception>
         public void DeactivateErrors()
         {
             if (browser == null)
@@ -53,6 +96,9 @@ namespace Game2048.Infrastructure
 
         }
 
+        /// <summary>
+        /// Upgrades this instance.
+        /// </summary>
         public void Upgrade()
         {
             var fileName = System.IO.Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName);
@@ -64,6 +110,12 @@ namespace Game2048.Infrastructure
         }
 
 
+        /// <summary>
+        /// Sets the browser feature control key.
+        /// </summary>
+        /// <param name="feature">The feature.</param>
+        /// <param name="appName">Name of the application.</param>
+        /// <param name="value">The value.</param>
         private void SetBrowserFeatureControlKey(string feature, string appName, uint value)
         {
             using (var key = Registry.CurrentUser.CreateSubKey(
@@ -74,12 +126,21 @@ namespace Game2048.Infrastructure
             }
         }
 
+        /// <summary>
+        /// Navigates to.
+        /// </summary>
+        /// <param name="url">The URL.</param>
         public void NavigateTo(string url)
         {
             browser.Navigate(url);
            
         }
 
+        /// <summary>
+        /// Executes the script.
+        /// </summary>
+        /// <param name="script">The script.</param>
+        /// <returns></returns>
         public object ExecuteScript(string script)
         {
             object[] args = { script };
@@ -87,11 +148,19 @@ namespace Game2048.Infrastructure
             return browser.InvokeScript("eval", args);
         }
 
+        /// <summary>
+        /// Sends the key.
+        /// </summary>
+        /// <param name="key">The key.</param>
         public void SendKey(string key)
         {
             ExecuteScript("sendkey(" + key + ")");
         }
 
+        /// <summary>
+        /// Clicks the control class.
+        /// </summary>
+        /// <param name="className">Name of the class.</param>
         public void ClickControlClass(string className)
         {
             var links = ((mshtml.HTMLDocument)browser.Document).getElementsByTagName("a");
@@ -103,10 +172,11 @@ namespace Game2048.Infrastructure
                     break;
                 }
             }
-
         }
 
-
+        /// <summary>
+        /// Injects the script.
+        /// </summary>
         public void InjectScript()
         {
             mshtml.IHTMLElement se = ((mshtml.HTMLDocument)browser.Document).createElement("script") as mshtml.IHTMLElement; //create the script
@@ -127,18 +197,7 @@ namespace Game2048.Infrastructure
             childhead.insertAdjacentElement("afterEnd", (IHTMLElement)element); //add the script element after the first child
         }
 
-        public Action Navigated
-        {
-            get;
-            set;
-        }
+        #endregion
 
-        private interface IOleServiceProvider
-        {
-            [PreserveSig]
-            int QueryService([In] ref Guid guidService, [In] ref Guid riid, [MarshalAs(UnmanagedType.IDispatch)] out object ppvObject);
-        }
-
-
-    }
+     }
 }

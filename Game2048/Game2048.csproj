@@ -25,7 +25,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -94,6 +94,7 @@
     <Compile Include="Game\Services\Interfaces\IGameStateRetriever.cs" />
     <Compile Include="Infrastructure\Interfaces\IMediaPlayer.cs" />
     <Compile Include="Infrastructure\Interfaces\INotificationService.cs" />
+    <Compile Include="Infrastructure\Interfaces\IOleServiceProvider.cs" />
     <Compile Include="Infrastructure\Interfaces\IViewModelStateUpdater.cs" />
     <Compile Include="Infrastructure\RelayCommand.cs" />
     <Compile Include="Game\Views\GameShell.xaml.cs">

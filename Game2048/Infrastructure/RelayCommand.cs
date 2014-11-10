@@ -11,7 +11,7 @@ namespace Game2048.Infrastructure
             readonly Action<object> _execute; 
             readonly Predicate<object> _canExecute; 
             
-            #endregion // Fields 
+            #endregion
             
             #region Constructors 
             
@@ -23,7 +23,7 @@ namespace Game2048.Infrastructure
                     throw new ArgumentNullException("execute"); 
                 _execute = execute; _canExecute = canExecute; } 
             
-            #endregion // Constructors 
+            #endregion
             
             #region ICommand Members 
             
@@ -51,7 +51,7 @@ namespace Game2048.Infrastructure
             }            
 
             
-            #endregion // ICommand Members 
+            #endregion 
         }
     
 }

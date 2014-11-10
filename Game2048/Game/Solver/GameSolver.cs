@@ -9,26 +9,52 @@ using System.Threading.Tasks;
 namespace Game2048.Game.Solver
 {
     public class GameSolver : IGameSolver
-    {                
+    {
+        #region Constants
+
         private const ulong ROW_MASK = 0xFFFF;
         private const ulong COL_MASK = 0x000F000F000F000F;
 
+        #endregion
+
+        #region Fields
+
+        //We can perform state lookups one row at a time by using arrays with 65536 entries.
+        //Move tables. Each row or compressed column is mapped to (oldrow^newrow) assuming row/col 0.
+        //Thus, the value is 0 if there is no move, and otherwise equals a value that can easily be
+        //xor'ed into the current board state to update the board.
+        private ulong[] rowsMovedLeft = new ulong[ushort.MaxValue + 1];
+        private ulong[] rowsMovedRight = new ulong[ushort.MaxValue + 1];
+        private ulong[] columnsMovedUp = new ulong[ushort.MaxValue + 1];
+        private ulong[] columnsMovedDown = new ulong[ushort.MaxValue + 1];
+        private double[] heuristics = new double[ushort.MaxValue + 1];
         private HeuristicWeight heuristicWeight;
         private int depthLimit = 3;
 
+        #endregion
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameSolver"/> class.
+        /// </summary>
+        /// <param name="weightProvider">The weight provider.</param>
         public GameSolver(IHeuristicWeightProvider weightProvider)
         {
             heuristicWeight = weightProvider.GetWeight();
 
         }
 
-        // Transpose rows/columns in a board:
-        //   0123       048c
-        //   4567  -->  159d
-        //   89ab       26ae
-        //   cdef       37bf
+        /// <summary>
+        /// Transposes the specified x.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <returns></returns>
         private ulong Transpose(ulong x)
         {
+            // Transpose rows/columns in a board:
+            //   0123       048c
+            //   4567  -->  159d
+            //   89ab       26ae
+            //   cdef       37bf
             ulong a1 = x & 0xF0F00F0FF0F00F0F;
             ulong a2 = x & 0x0000F0F00000F0F0;
             ulong a3 = x & 0x0F0F00000F0F0000;
@@ -39,10 +65,14 @@ namespace Game2048.Game.Solver
             return b1 | (b2 >> 24) | (b3 << 24);
         }
 
-        // Count the number of empty positions (= zero nibbles) in a board.
-        // Precondition: the board cannot be fully empty.
+        /// <summary>
+        /// Gets the empty count.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private byte GetEmptyCount(ulong board)
         {
+            // Count the number of empty positions (= zero nibbles) in a board.
             board |= (board >> 2) & 0x3333333333333333;
             board |= (board >> 1);
             board = ~board & 0x1111111111111111;
@@ -57,18 +87,10 @@ namespace Game2048.Game.Solver
             return (byte)(board & 0xf);
         }
 
-        /* We can perform state lookups one row at a time by using arrays with 65536 entries. */
 
-        /* Move tables. Each row or compressed column is mapped to (oldrow^newrow) assuming row/col 0.
-         *
-         * Thus, the value is 0 if there is no move, and otherwise equals a value that can easily be
-         * xor'ed into the current board state to update the board. */
-        private ulong[] rowsMovedLeft = new ulong[ushort.MaxValue + 1];
-        private ulong[] rowsMovedRight = new ulong[ushort.MaxValue + 1];
-        private ulong[] columnsMovedUp = new ulong[ushort.MaxValue + 1];
-        private ulong[] columnsMovedDown = new ulong[ushort.MaxValue + 1];
-        private double[] heuristics = new double[ushort.MaxValue + 1];        
-
+        /// <summary>
+        /// Initializes the heuristics.
+        /// </summary>
         public void InitHeuristics()
         {
             for (ulong longRow = 0; longRow < ushort.MaxValue + 1; ++longRow)
@@ -139,6 +161,11 @@ namespace Game2048.Game.Solver
             }
         }
 
+        /// <summary>
+        /// Gets the monotonicity.
+        /// </summary>
+        /// <param name="rowRanks">The row ranks.</param>
+        /// <returns></returns>
         private double GetMonotonicity(byte[] rowRanks)
         {
             double monoLeft = 0;
@@ -162,6 +189,10 @@ namespace Game2048.Game.Solver
             return Math.Min(monoLeft, monoRight);
         }
 
+        /// <summary>
+        /// Moves the row left.
+        /// </summary>
+        /// <param name="rowRanks">The row ranks.</param>
         private void MoveRowLeft(ref byte[] rowRanks)
         {
             for (int i = 0; i < 3; ++i)
@@ -187,18 +218,33 @@ namespace Game2048.Game.Solver
             }
         }
 
+        /// <summary>
+        /// Unpacks the column.
+        /// </summary>
+        /// <param name="row">The row.</param>
+        /// <returns></returns>
         private ulong UnpackColumn(ushort row)
         {
             ulong tmp = row;
             return (tmp | (tmp << 12) | (tmp << 24) | (tmp << 36)) & COL_MASK;
         }
 
+        /// <summary>
+        /// Reverses the row.
+        /// </summary>
+        /// <param name="row">The row.</param>
+        /// <returns></returns>
         private ushort ReverseRow(ushort row)
         {
             return (ushort)((row >> 12) | ((row >> 4) & 0x00F0) | ((row << 4) & 0x0F00) | (row << 12));
         }
 
 
+        /// <summary>
+        /// Moves up.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private ulong MoveUp(ulong board)
         {
             ulong transposedBoard = Transpose(board);
@@ -209,6 +255,11 @@ namespace Game2048.Game.Solver
             return board;
         }
 
+        /// <summary>
+        /// Moves down.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private ulong MoveDown(ulong board)
         {
             ulong transposedBoard = Transpose(board);
@@ -219,6 +270,11 @@ namespace Game2048.Game.Solver
             return board;
         }
 
+        /// <summary>
+        /// Moves the left.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private ulong MoveLeft(ulong board)
         {
             board ^= (rowsMovedLeft[(board >> 0) & ROW_MASK]) << 0;
@@ -228,6 +284,11 @@ namespace Game2048.Game.Solver
             return board;
         }
 
+        /// <summary>
+        /// Moves the right.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private ulong MoveRight(ulong board)
         {
             board ^= (rowsMovedRight[(board >> 0) & ROW_MASK]) << 0;
@@ -237,6 +298,12 @@ namespace Game2048.Game.Solver
             return board;
         }
 
+        /// <summary>
+        /// Moves the specified move.
+        /// </summary>
+        /// <param name="move">The move.</param>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private ulong Move(int move, ulong board)
         {
             switch (move)
@@ -254,6 +321,11 @@ namespace Game2048.Game.Solver
             }
         }
 
+        /// <summary>
+        /// Gets the score.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private double GetScore(ulong board)
         {
             return heuristics[(board >> 0) & ROW_MASK] +
@@ -262,11 +334,23 @@ namespace Game2048.Game.Solver
                    heuristics[(board >> 48) & ROW_MASK];
         }
 
+        /// <summary>
+        /// Gets the heuristic score.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private double GetHeuristicScore(ulong board)
         {
             return GetScore(board) + GetScore(Transpose(board));
         }
 
+        /// <summary>
+        /// Gets the expectation maximum score.
+        /// </summary>
+        /// <param name="movesCache">The moves cache.</param>
+        /// <param name="depth">The depth.</param>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private double GetExpectationMaxScore(Dictionary<ulong, double> movesCache, int depth, ulong board)
         {
             if (depth >= depthLimit)
@@ -301,23 +385,34 @@ namespace Game2048.Game.Solver
             return result;
         }
 
+        /// <summary>
+        /// Gets the move score.
+        /// </summary>
+        /// <param name="movesCache">The moves cache.</param>
+        /// <param name="depth">The depth.</param>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         private double GetMoveScore(Dictionary<ulong, double> movesCache, int depth, ulong board)
         {
-            double best = 0;
-            depth++;
+            double best = 0.00000000000000001;            
             for (int move = 0; move < 4; move++)
             {
                 ulong newboard = Move(move, board);
                 if (board != newboard)
                 {
-                    best = Math.Max(best, GetExpectationMaxScore(movesCache, depth, newboard));
+                    best = Math.Max(best, GetExpectationMaxScore(movesCache, depth + 1, newboard));
                 }
-            }
-            depth--;
+            }            
 
             return best;
         }
 
+        /// <summary>
+        /// Gets the top level score.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <param name="move">The move.</param>
+        /// <returns></returns>
         private double GetTopLevelScore(ulong board, int move)
         {
             ulong newboard = Move(move, board);
@@ -329,6 +424,11 @@ namespace Game2048.Game.Solver
             return GetExpectationMaxScore(new Dictionary<ulong, double>(), 0, newboard);
         }
 
+        /// <summary>
+        /// Gets the best move.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         public MoveDirection GetBestMove(ulong board)
         {
             double bestScore = 0;
@@ -348,6 +448,11 @@ namespace Game2048.Game.Solver
             return bestMove;
         }
 
+        /// <summary>
+        /// Gets the maximum rank.
+        /// </summary>
+        /// <param name="board">The board.</param>
+        /// <returns></returns>
         public byte GetMaxRank(ulong board)
         {
             byte maxrank = 0;
@@ -359,6 +464,10 @@ namespace Game2048.Game.Solver
             return maxrank;
         }
 
+        /// <summary>
+        /// Sets the depth.
+        /// </summary>
+        /// <param name="depth">The depth.</param>
         public void SetDepth(int depth)
         {
             depthLimit = depth;

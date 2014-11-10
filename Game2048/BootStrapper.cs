@@ -8,7 +8,10 @@ using System.Windows;
 namespace Game2048
 {
     public class BootStrapper
-    {        
+    {
+        /// <summary>
+        /// Defines the entry point of the application.
+        /// </summary>
         [System.STAThreadAttribute()]
         static void Main()
         {
@@ -18,6 +21,9 @@ namespace Game2048
 
         }
 
+        /// <summary>
+        /// Configures the container.
+        /// </summary>
         private static void ConfigureContainer()
         {
             var container = new UnityContainer().LoadConfiguration();
@@ -25,11 +31,18 @@ namespace Game2048
             ServiceLocator.SetLocatorProvider(() => locator);
         }
 
+        /// <summary>
+        /// Creates the shell.
+        /// </summary>
+        /// <returns></returns>
         private static GameShell CreateShell()
         {
             return ServiceLocator.Current.GetInstance<GameShell>();
         }
 
+        /// <summary>
+        /// Initializes this instance.
+        /// </summary>
         private static void Initialize()
         {
             GameShell mainWindow = CreateShell();
@@ -44,6 +57,11 @@ namespace Game2048
             Application.Current.MainWindow.Show();
         }
 
+        /// <summary>
+        /// Handles the Startup event of the app control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="StartupEventArgs"/> instance containing the event data.</param>
         static void app_Startup(object sender, StartupEventArgs e)
         {
             ConfigureContainer();

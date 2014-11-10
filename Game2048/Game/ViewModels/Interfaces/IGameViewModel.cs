@@ -4,18 +4,18 @@ namespace Game2048.Game.ViewModels.Interfaces
 {
     public interface IGameViewModel
     {
-        bool CanContinue { get; }
-        bool CanFinish { get; }
-        bool CanPause { get; }
-        bool CanStart { get; }
-        void Continue();
-        ICommand ContinueCommand { get; }
-        void Finish();
-        ICommand FinishCommand { get; }
         void Initialize();
-        void Pause();
-        ICommand PauseCommand { get; }
         void Start();
+        void Pause();
+        void Continue();
+        void Finish();
         ICommand StartCommand { get; }
+        bool CanStart { get; }
+        ICommand PauseCommand { get; }
+        bool CanPause { get; }
+        ICommand ContinueCommand { get; }
+        bool CanContinue { get; }
+        ICommand FinishCommand { get; }
+        bool CanFinish { get; }
     }
 }

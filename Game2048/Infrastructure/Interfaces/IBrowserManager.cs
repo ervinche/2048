@@ -4,6 +4,12 @@ namespace Game2048.Infrastructure.Interfaces
 {
     public interface IBrowserManager
     {
+        Action Navigated
+        {
+            get;
+            set;
+        }
+
         void DeactivateErrors();
 
         void Upgrade();
@@ -17,12 +23,6 @@ namespace Game2048.Infrastructure.Interfaces
         void ClickControlClass(string className);
 
         void InjectScript();
-
-        Action Navigated
-        {
-            get;
-            set;
-        }
 
     }
 }

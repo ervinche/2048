@@ -8,6 +8,9 @@ namespace Game2048.Infrastructure
 {
     public class ViewModelStateUpdater : IViewModelStateUpdater
     {
+        /// <summary>
+        /// Updates the states.
+        /// </summary>
         public void UpdateStates()
         {            
             CommandManager.InvalidateRequerySuggested();

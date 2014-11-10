@@ -4,10 +4,6 @@ namespace Game2048.Game.Services.Interfaces
 {
     public interface ICellTracker
     {
-        void Initialize();
-
-        void RegisterState(ulong gameStateValue);
-
         Action<int> NewCellAction
         {
             get;
@@ -19,5 +15,9 @@ namespace Game2048.Game.Services.Interfaces
             get;
             set;
         }
+
+        void Initialize();
+
+        void RegisterState(ulong gameStateValue);
     }
 }

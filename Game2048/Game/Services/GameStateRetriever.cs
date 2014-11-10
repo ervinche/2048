@@ -8,13 +8,32 @@ namespace Game2048.Game.Services
 {
     public class GameStateRetriever : IGameStateRetriever
     {
+        #region Fields
+
         private IBrowserManager browserManager;
 
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameStateRetriever"/> class.
+        /// </summary>
+        /// <param name="browserManager">The browser manager.</param>
         public GameStateRetriever(IBrowserManager browserManager)
         {
             this.browserManager = browserManager;
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Transforms the state value.
+        /// </summary>
+        /// <param name="gameState">State of the game.</param>
+        /// <returns></returns>
         public ulong TransformStateValue(GameState gameState)
         {
             if (gameState == null)
@@ -40,6 +59,10 @@ namespace Game2048.Game.Services
             return boardValue;
         }
 
+        /// <summary>
+        /// Gets the state.
+        /// </summary>
+        /// <returns></returns>
         public GameState GetState()
         {            
             string state = browserManager.ExecuteScript("localStorage['gameState']") as string;
@@ -48,7 +71,8 @@ namespace Game2048.Game.Services
                 return null;
             }
             return JsonConvert.DeserializeObject<GameState>(state);
-
         }
+
+        #endregion
     }
 }

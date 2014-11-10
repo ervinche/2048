@@ -5,23 +5,29 @@ using Game2048.Game.ViewModels.Interfaces;
 using Game2048.Infrastructure;
 using Game2048.Infrastructure.Interfaces;
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
 
 namespace Game2048.Game.ViewModels
-{   
-    public class GameViewModel : IGameViewModel
+{
+    public class GameViewModel : IGameViewModel, INotifyPropertyChanged
     {
+        /// <summary>
+        /// The Game stats
+        /// </summary>
         private enum GamePlayState
         {
             NotRunning,
             RunningBeforeElapsed,
             RunningBeforeFinished,
             TimeElapsed,
-            PausedBeforeElapsed,            
-            PausedBeforeFinished,                        
+            PausedBeforeElapsed,
+            PausedBeforeFinished,
         }
+
+        #region Fields
 
         private GamePlayState playState;
         private IGameInteractor game;
@@ -33,21 +39,35 @@ namespace Game2048.Game.ViewModels
         private IViewModelStateUpdater stateUpdater;
 
         private Timer timer;
-        private DateTime startTime;        
+        private int timerCount = 60;
 
         private ICommand startCommand;
         private ICommand pauseCommand;
         private ICommand continueCommand;
-        private ICommand finishCommand;        
-        
-        public GameViewModel(IGameInteractor game, 
-            IGameStateRetriever gameStateRetriever, 
-            ICellTracker cellTracker, 
-            IMediaPlayer mediaPlayer, 
-            IGameSolver gameSolver, 
+        private ICommand finishCommand;
+
+        #endregion
+
+        #region Constrcutor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameViewModel"/> class.
+        /// </summary>
+        /// <param name="game">The game.</param>
+        /// <param name="gameStateRetriever">The game state retriever.</param>
+        /// <param name="cellTracker">The cell tracker.</param>
+        /// <param name="mediaPlayer">The media player.</param>
+        /// <param name="gameSolver">The game solver.</param>
+        /// <param name="notificationService">The notification service.</param>
+        /// <param name="stateUpdater">The state updater.</param>
+        public GameViewModel(IGameInteractor game,
+            IGameStateRetriever gameStateRetriever,
+            ICellTracker cellTracker,
+            IMediaPlayer mediaPlayer,
+            IGameSolver gameSolver,
             INotificationService notificationService,
             IViewModelStateUpdater stateUpdater)
-        {            
+        {
             this.game = game;
             this.gameStateRetriever = gameStateRetriever;
             this.cellTracker = cellTracker;
@@ -58,24 +78,43 @@ namespace Game2048.Game.ViewModels
 
             cellTracker.NewCellAction = (cell) =>
                 {
-                    mediaPlayer.Play(@"Resources\beep.wav");                                        
+                    mediaPlayer.Play(@"Resources\beep.wav");
+                    if (cell == 13)
+                    {
+                        gameSolver.SetDepth(3);
+                    }
                 };
             cellTracker.WinAction = () =>
                 {
-                    mediaPlayer.Play(@"Resources\applause.wav");                    
-                    gameSolver.SetDepth(3);
+                    mediaPlayer.Play(@"Resources\applause.wav");
+                    gameSolver.SetDepth(4);
                 };
 
             timer = new Timer();
             timer.Elapsed += (sender, e) =>
-                {                    
-                    timer.Stop();
-                    playState = GamePlayState.TimeElapsed;
-                    stateUpdater.UpdateStates();
-                    notificationService.ShowNotification("Your time has elapsed!");
+                {
+                    timerCount--;
+                    RaisePropertyChanged("ElapsedTime");
+                    if (timerCount == 0)
+                    {
+                        timer.Stop();
+                        playState = GamePlayState.TimeElapsed;
+                        stateUpdater.UpdateStates();
+                        notificationService.ShowNotification("Your time has elapsed!");
+                    }
                 };
         }
 
+        #endregion
+
+        #region Commands
+
+        /// <summary>
+        /// Gets the start command.
+        /// </summary>
+        /// <value>
+        /// The start command.
+        /// </value>
         public ICommand StartCommand
         {
             get
@@ -88,6 +127,12 @@ namespace Game2048.Game.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance can start.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance can start; otherwise, <c>false</c>.
+        /// </value>
         public bool CanStart
         {
             get
@@ -96,6 +141,12 @@ namespace Game2048.Game.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the pause command.
+        /// </summary>
+        /// <value>
+        /// The pause command.
+        /// </value>
         public ICommand PauseCommand
         {
             get
@@ -108,6 +159,12 @@ namespace Game2048.Game.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance can pause.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance can pause; otherwise, <c>false</c>.
+        /// </value>
         public bool CanPause
         {
             get
@@ -116,6 +173,12 @@ namespace Game2048.Game.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the continue command.
+        /// </summary>
+        /// <value>
+        /// The continue command.
+        /// </value>
         public ICommand ContinueCommand
         {
             get
@@ -128,6 +191,12 @@ namespace Game2048.Game.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance can continue.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance can continue; otherwise, <c>false</c>.
+        /// </value>
         public bool CanContinue
         {
             get
@@ -136,6 +205,12 @@ namespace Game2048.Game.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the finish command.
+        /// </summary>
+        /// <value>
+        /// The finish command.
+        /// </value>
         public ICommand FinishCommand
         {
             get
@@ -148,6 +223,12 @@ namespace Game2048.Game.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance can finish.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance can finish; otherwise, <c>false</c>.
+        /// </value>
         public bool CanFinish
         {
             get
@@ -156,53 +237,59 @@ namespace Game2048.Game.ViewModels
             }
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
+        public int ElapsedTime
+        {
+            get
+            {
+                return timerCount;
+            }
+        }
+
+        /// <summary>
+        /// Initializes this instance.
+        /// </summary>
         public void Initialize()
         {
             gameSolver.InitHeuristics();
         }
 
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
         public void Start()
-        {            
+        {
             if (playState == GamePlayState.NotRunning || playState == GamePlayState.TimeElapsed)
             {
                 Initialize();
+                gameSolver.SetDepth(3);
                 playState = GamePlayState.RunningBeforeElapsed;
                 stateUpdater.UpdateStates();
-                timer.Interval = 60 * 1000;
+                timer.Interval = 1000;
+                timerCount = 60;
                 timer.Start();
-                startTime = DateTime.Now;                
                 cellTracker.Initialize();
-            }                                    
-            Move();
-        }
-
-        public void Continue()
-        {
-            if (playState == GamePlayState.PausedBeforeElapsed)
-            {
-                playState = GamePlayState.RunningBeforeElapsed;
-                stateUpdater.UpdateStates();
-                timer.Start();
-                startTime = DateTime.Now; // because of decreased interval                
             }
-            else
-            {
-                if (playState == GamePlayState.PausedBeforeFinished)
-                {
-                    playState = GamePlayState.RunningBeforeFinished;
-                    stateUpdater.UpdateStates();
-                }
-            }                        
             Move();
         }
 
+        /// <summary>
+        /// Pauses this instance.
+        /// </summary>
         public void Pause()
         {
             if (playState == GamePlayState.RunningBeforeElapsed)
             {
                 timer.Stop();
-                TimeSpan elapsed = DateTime.Now.Subtract(startTime);
-                timer.Interval = timer.Interval - elapsed.TotalMilliseconds;
                 playState = GamePlayState.PausedBeforeElapsed;
             }
             else
@@ -215,15 +302,56 @@ namespace Game2048.Game.ViewModels
             stateUpdater.UpdateStates();
         }
 
+        /// <summary>
+        /// Continues this instance.
+        /// </summary>
+        public void Continue()
+        {
+            if (playState == GamePlayState.PausedBeforeElapsed)
+            {
+                playState = GamePlayState.RunningBeforeElapsed;
+                stateUpdater.UpdateStates();
+                timer.Start();
+            }
+            else
+            {
+                if (playState == GamePlayState.PausedBeforeFinished)
+                {
+                    playState = GamePlayState.RunningBeforeFinished;
+                    stateUpdater.UpdateStates();
+                }
+            }
+            Move();
+        }
+
+        /// <summary>
+        /// Finishes this instance.
+        /// </summary>
         public void Finish()
-        {            
+        {
             playState = GamePlayState.RunningBeforeFinished;
             stateUpdater.UpdateStates();
+            gameSolver.SetDepth(2);
             Move();
-        }        
+        }
 
+        /// <summary>
+        /// Raises the property changed.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        private void RaisePropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        /// <summary>
+        /// Moves this instance.
+        /// </summary>
         private async void Move()
-        {                        
+        {
             if (playState == GamePlayState.TimeElapsed || playState == GamePlayState.PausedBeforeElapsed || playState == GamePlayState.PausedBeforeFinished)
             {
                 return;
@@ -235,7 +363,9 @@ namespace Game2048.Game.ViewModels
             {
                 if (playState == GamePlayState.RunningBeforeElapsed)
                 {
-                    timer.Stop();                    
+                    timer.Stop();
+                    timerCount = 0;
+                    RaisePropertyChanged("ElapsedTime");                    
                 }
                 playState = GamePlayState.NotRunning;
                 stateUpdater.UpdateStates();
@@ -261,5 +391,16 @@ namespace Game2048.Game.ViewModels
             game.Move(best);
             Move();
         }
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
     }
 }
