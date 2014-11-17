@@ -4,6 +4,9 @@ using Game2048.Infrastructure.Interfaces;
 
 namespace Game2048.Game.Services
 {
+    /// <summary>
+    /// Game interactor service.
+    /// </summary>
     public class GameInteractor : IGameInteractor
     {
         #region Fields
@@ -28,7 +31,7 @@ namespace Game2048.Game.Services
         #region Methods
 
         /// <summary>
-        /// Continues this instance.
+        /// Continues the game.
         /// </summary>
         public void Continue()
         {
@@ -36,9 +39,9 @@ namespace Game2048.Game.Services
         }
 
         /// <summary>
-        /// Moves the specified direction.
+        /// Moves into a direction.
         /// </summary>
-        /// <param name="direction">The direction.</param>
+        /// <param name="direction">The direction to move.</param>
         public void Move(MoveDirection direction)
         {
             browserManager.SendKey((direction + 37).ToString());

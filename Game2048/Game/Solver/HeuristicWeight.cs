@@ -1,5 +1,8 @@
 ﻿namespace Game2048.Game.Solver
 {
+    /// <summary>
+    /// Heuristic weights.
+    /// </summary>
     public class HeuristicWeight
     {
         #region Properties

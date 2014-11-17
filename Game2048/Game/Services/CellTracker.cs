@@ -1,10 +1,13 @@
-﻿using Game2048.Game.Services.Interfaces;
-using Game2048.Game.Solver.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Game2048.Game.Services.Interfaces;
+using Game2048.Game.Solver.Interfaces;
 
 namespace Game2048.Game.Services
 {
+    /// <summary>
+    /// Cell tracker service.
+    /// </summary>
     public class CellTracker : ICellTracker
     {
         #region Fields
@@ -14,7 +17,21 @@ namespace Game2048.Game.Services
 
         #endregion
 
+        #region Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CellTracker"/> class.
+        /// </summary>
+        /// <param name="gameSolver">The game solver.</param>
+        public CellTracker(IGameSolver gameSolver)
+        {
+            this.gameSolver = gameSolver;
+        }
+
+        #endregion
+
         #region Properties
+        
         /// <summary>
         /// Gets or sets the new cell action.
         /// </summary>
@@ -39,25 +56,12 @@ namespace Game2048.Game.Services
             set;
         }
 
-        #endregion
-
-        #region Constructor
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CellTracker"/> class.
-        /// </summary>
-        /// <param name="gameSolver">The game solver.</param>
-        public CellTracker(IGameSolver gameSolver)
-        {
-            this.gameSolver = gameSolver;
-        }
-
-        #endregion
+        #endregion        
 
         #region Methods
 
         /// <summary>
-        /// Initializes this instance.
+        /// Initializes the cell tracker.
         /// </summary>
         public void Initialize()
         {
@@ -65,9 +69,9 @@ namespace Game2048.Game.Services
         }
 
         /// <summary>
-        /// Registers the state.
+        /// Registers game state.
         /// </summary>
-        /// <param name="gameStateValue">The game state value.</param>
+        /// <param name="gameStateValue">The game state.</param>
         public void RegisterState(ulong gameStateValue)
         {            
             int max = gameSolver.GetMaxRank(gameStateValue);

@@ -3,12 +3,15 @@ using System.Configuration;
 
 namespace Game2048.Game.Solver
 {
+    /// <summary>
+    /// Heuristic weights provider.
+    /// </summary>
     public class HeuristicWeightProvider : IHeuristicWeightProvider
     {
         /// <summary>
-        /// Gets the weight.
+        /// Gets the weights.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns weights.</returns>
         public HeuristicWeight GetWeight()
         {
             return new HeuristicWeight()

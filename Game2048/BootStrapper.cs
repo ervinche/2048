@@ -7,8 +7,14 @@ using System.Windows;
 
 namespace Game2048
 {
+    /// <summary>
+    /// Application bootstrapper.
+    /// </summary>
     public class BootStrapper
     {
+        private const string GAME_URL = "http://2048game.com/";
+        //private const string GAME_URL = "http://gabrielecirulli.github.io/2048/";
+
         /// <summary>
         /// Defines the entry point of the application.
         /// </summary>
@@ -50,9 +56,8 @@ namespace Game2048
 
             IBrowserManager browserManager = ServiceLocator.Current.GetInstance<IBrowserManager>();
             browserManager.Upgrade();
-            browserManager.Navigated = () => browserManager.InjectScript();
-            //browserManager.NavigateTo("http://gabrielecirulli.github.io/2048/");
-            browserManager.NavigateTo("http://2048game.com/");
+            browserManager.Navigated = () => browserManager.InjectScript();            
+            browserManager.NavigateTo(GAME_URL);
             browserManager.DeactivateErrors();
             Application.Current.MainWindow.Show();
         }

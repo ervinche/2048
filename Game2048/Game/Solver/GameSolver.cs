@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Game2048.Game.Solver
 {
+    /// <summary>
+    /// Game solver class.
+    /// </summary>
     public class GameSolver : IGameSolver
     {
         #region Constants

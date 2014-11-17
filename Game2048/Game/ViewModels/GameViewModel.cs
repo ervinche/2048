@@ -12,6 +12,9 @@ using System.Windows.Input;
 
 namespace Game2048.Game.ViewModels
 {
+    /// <summary>
+    /// Game view model.
+    /// </summary>
     public class GameViewModel : IGameViewModel, INotifyPropertyChanged
     {
         /// <summary>
@@ -19,11 +22,34 @@ namespace Game2048.Game.ViewModels
         /// </summary>
         private enum GamePlayState
         {
+            /// <summary>
+            /// Game is not running.
+            /// </summary>
             NotRunning,
+
+            /// <summary>
+            /// game is running but time has not been elapsed.
+            /// </summary>
             RunningBeforeElapsed,
+
+            /// <summary>
+            /// Game is running but has not finished.
+            /// </summary>
             RunningBeforeFinished,
+
+            /// <summary>
+            /// Time has elapsed.
+            /// </summary>
             TimeElapsed,
+
+            /// <summary>
+            /// Game is paused before time has elapsed.
+            /// </summary>
             PausedBeforeElapsed,
+
+            /// <summary>
+            /// Game is paused before finish.
+            /// </summary>
             PausedBeforeFinished,
         }
 
@@ -128,11 +154,8 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance can start.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance can start; otherwise, <c>false</c>.
-        /// </value>
+        /// Gets if start command can be executed..
+        /// </summary>        
         public bool CanStart
         {
             get
@@ -160,11 +183,8 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance can pause.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance can pause; otherwise, <c>false</c>.
-        /// </value>
+        /// Gets if pause command can be executed.
+        /// </summary>        
         public bool CanPause
         {
             get
@@ -192,11 +212,8 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance can continue.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance can continue; otherwise, <c>false</c>.
-        /// </value>
+        /// Gets if continue command can be executed..
+        /// </summary>        
         public bool CanContinue
         {
             get
@@ -224,11 +241,8 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance can finish.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance can finish; otherwise, <c>false</c>.
-        /// </value>
+        /// Gets if finish command can be executed.
+        /// </summary>        
         public bool CanFinish
         {
             get
@@ -256,7 +270,7 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Initializes this instance.
+        /// Initializes the game.
         /// </summary>
         public void Initialize()
         {
@@ -264,7 +278,7 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Starts this instance.
+        /// Starts the game.
         /// </summary>
         public void Start()
         {
@@ -283,7 +297,7 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Pauses this instance.
+        /// Pauses the game.
         /// </summary>
         public void Pause()
         {
@@ -303,7 +317,7 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Continues this instance.
+        /// Continues the game.
         /// </summary>
         public void Continue()
         {
@@ -325,7 +339,7 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Finishes this instance.
+        /// Finishes the game.
         /// </summary>
         public void Finish()
         {
@@ -348,7 +362,7 @@ namespace Game2048.Game.ViewModels
         }
 
         /// <summary>
-        /// Moves this instance.
+        /// Makes a move.
         /// </summary>
         private async void Move()
         {
@@ -358,7 +372,7 @@ namespace Game2048.Game.ViewModels
             }
 
             GameState gameStateValue = gameStateRetriever.GetState();
-            // am murit
+            // game over
             if (gameStateValue == null)
             {
                 if (playState == GamePlayState.RunningBeforeElapsed)

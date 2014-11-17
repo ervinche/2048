@@ -6,6 +6,9 @@ using System;
 
 namespace Game2048.Game.Services
 {
+    /// <summary>
+    /// Game state retriever service.
+    /// </summary>
     public class GameStateRetriever : IGameStateRetriever
     {
         #region Fields
@@ -30,10 +33,10 @@ namespace Game2048.Game.Services
         #region Methods
 
         /// <summary>
-        /// Transforms the state value.
+        /// Transforms game state value.
         /// </summary>
-        /// <param name="gameState">State of the game.</param>
-        /// <returns></returns>
+        /// <param name="gameState">The game state.</param>
+        /// <returns>Returns game state value represented as long.</returns>
         public ulong TransformStateValue(GameState gameState)
         {
             if (gameState == null)
@@ -60,9 +63,9 @@ namespace Game2048.Game.Services
         }
 
         /// <summary>
-        /// Gets the state.
+        /// Gets the state of the game.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns the game state.</returns>
         public GameState GetState()
         {            
             string state = browserManager.ExecuteScript("localStorage['gameState']") as string;

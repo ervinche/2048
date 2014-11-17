@@ -2,6 +2,9 @@
 
 namespace Game2048.infrastructure
 {
+    /// <summary>
+    /// Media Player service.
+    /// </summary>
     public class MediaPlayer : IMediaPlayer
     {
         /// <summary>
